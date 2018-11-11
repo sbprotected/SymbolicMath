@@ -28,14 +28,12 @@ class Number():
         return Number(-1) * self;
 
     def __add__(self, other):
-        numerator = self.numerator + other.numerator;
-        denominator = gcd(self.denominator, other.denominator);
+        numerator = self.numerator * other.denominator + self.denominator * other.numerator;
+        denominator = self.denominator * other.denominator
         return Number((numerator, denominator));
 
     def __sub__(self, other):
-        numerator = self.numerator - other.numerator;
-        denominator = gcd(self.denominator, other.denominator);
-        return Number((numerator, denominator));
+        return self + (-other);
 
     def __mul__(self, other):
         numerator = self.numerator * other.numerator;
