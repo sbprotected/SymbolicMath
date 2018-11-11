@@ -83,4 +83,7 @@ class Term():
             raise NotImplementedError;
 
     def __eq__(self, other):
-        return (self.coef, self.syms, self.exps) == (other.coef, other.syms, other.exps);
+        if isinstance(other, Term):
+            return (self.coef, self.syms, self.exps) == (other.coef, other.syms, other.exps);
+        else:
+            return False;
