@@ -5,7 +5,7 @@ from Symbol import Symbol;
 from Term import Term;
 
 
-number_pattern = re.compile(r"([-]?[0-9]*\.?[0-9]+)");#re.compile(r"([\d]+([\.][\d]+)?)");
+number_pattern = re.compile(r"([-]?[0-9]*\.?[0-9]+)");
 operators = "+-*/^";
 variables = ascii_lowercase;
 delimiters = operators + "()";
@@ -48,9 +48,31 @@ class Parser():
         return l;
 
     @classmethod
-    def get_inside_parentheses(cls, string):
-        """ returns portion of a string enclosed by outermost parentheses """
-        return string[string.find("(")+1:string.rfind(")")];
+    def list_index(cls, list_, chars):
+        """ equivalent to list.index but with searches for multiple characters at once """
+        for i, element in enumerate(list_):
+            if element in chars:
+                return i;
+        return -1;
+
+    @classmethod
+    def get_parentheses_location(cls, list_):
+        """ Gets the index of the first opening parenthesis and the matching close parenthesis """
+        start, count = list_.index("("), 1;
+        for i, element in enumerate(list_[start+1:]):
+            if element == "(":
+                count += 1;
+            elif element == ")":
+                count -= 1;
+            if not count:
+                end = i;
+                break;
+        return start, start+end+1;
+
+    @classmethod
+    def list_replace(cls, list_, start, end, replacement):
+        """ replaces list[start:end+1] with replacement in a given list. """
+        return list_[:start] + [replacement] + list_[end+1:];
 
     @classmethod
     def clean_up(cls, expr):
@@ -108,10 +130,17 @@ class Parser():
         # then parses 3 and x^2 separately, then simplifies it to a single term.
         #
 
+        if isinstance(term, Term): return term;
+
         cls.test_term(term);
         term = cls.clean_up(term);
-
         terms = cls.separate(term, "*/()");
+
+        while "(" in terms:
+            start, end = cls.get_parentheses_location(terms);
+            result = cls.parse_term("".join(terms[start+1:end]));
+            terms = cls.list_replace(terms, start, end, result);
+            
         if len(terms) == 1:
             term = terms[0];
             if number_pattern.fullmatch(term):
@@ -123,7 +152,6 @@ class Parser():
             elif "^" in term:
                 # it was not a Number, operator, or parenthesis.
                 # it is something of the form (var)^(exponent)
-                print(term);
                 return Term(Number(1), [Symbol(term[0])], [Number(float(term[term.rfind("^")+1:]))]);
             else:
                 # it is just a single variable such as "x" or "y"
@@ -133,11 +161,13 @@ class Parser():
             terms = [cls.parse_term(t) for t in terms];
 
         while "*" in terms or "/" in terms:
-            terms = parser.list_substitute(terms, 1);
-            # ^^ the operator will always be the element at index 1.
+            index = cls.list_index(terms, ["*", "/"]);
+            # ^^ this will be the first occurence of an operator.
+            terms = cls.list_substitute(terms, index);
 
         return terms[0];
 
 
 if __name__ == "__main__":
     parser = Parser();
+    term1 = "(8/32x)(4x)";
