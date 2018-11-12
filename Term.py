@@ -3,7 +3,7 @@ from Symbol import Symbol;
 
 
 # this is what I am currently working on. I have to figure out how to implement
-# addition and division operations with terms that may or may not have the same variables and degree.
+# the basic arithmetic operations with terms that may or may not have the same variables and degree.
 # example: x + x = 2x, x^2 + x = x^2 + x (cannot be simplified: different degree), x + y = x + y (cannot be simplified: different variable)
 
 
@@ -49,22 +49,26 @@ class Term():
         f = dict(zip(map(lambda v: v.symbol, self.syms), self.exps));
         new_numerator, new_denominator = {}, {};
 
-        for var, exp in zip(other.syms, other.exps):
-            var = var.symbol;
-            if var in f.keys():
-                f[var] -= exp;
-                number = f[var];
-            else:
-                f[var] = -exp;
+        if other.syms:
+            for var, exp in zip(other.syms, other.exps):
+                var = var.symbol;
+                if var in f.keys():
+                    f[var] -= exp;
+                    number = f[var];
+                else:
+                    f[var] = -exp;
+                    number = f[var];
 
-            null = Number(0);
+                null = Number(0);
 
-            if number < null:
-                new_denominator[var] = -number;
-            elif number > null:
-                new_numerator[var] = number;
-            else:
-                pass; # if the new exponent is 0, don't include it.
+                if number < null:
+                    new_denominator[var] = -number;
+                elif number > null:
+                    new_numerator[var] = number;
+                else:
+                    pass; # if the new exponent is 0, don't include it.
+        else:
+            new_numerator = dict(zip(map(lambda s: s.symbol, self.syms), self.exps));
 
         new_coef = self.coef / other.coef;
 
@@ -75,8 +79,8 @@ class Term():
                                 list(map(lambda v: Symbol(v), new_denominator.keys())),
                                 list(new_denominator.values()));
 
-        if denominator_term == Term(Number(1), [], []):
-            return numerator_term;
+        if not denominator_term.syms:
+            return Term(new_coef, numerator_term.syms, numerator_term.exps);
         else:
             # not sure what to do here either. if this block executes it means
             # that the division could not be simplified to a single term...
