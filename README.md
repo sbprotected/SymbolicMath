@@ -42,10 +42,10 @@ Classes
 	- error testing should be done and include: parentheses checking, function use.
 	- able to identify numbers, variables, and terms within the input string.
 	- handles implicit multiplication. examples:
-		> xx should be parsed to x*x
-		> x(x) should be parsed to x*(x)
-		> (x)(x) should be parsed to (x)*(x)
-		> xsin(x) should be parsed to x*sin(x) but NOT x*s*i*n*(x)
+		- xx should be parsed to x*x
+		- x(x) should be parsed to x*(x)
+		- (x)(x) should be parsed to (x)*(x)
+		- xsin(x) should be parsed to x*sin(x) but NOT x*s*i*n*(x)
 	- functions such as sine and cosine will be implemented in the future, but for now the primary focus is handling simpler terms.
 	- the class is located in `Parser.py` in the repository.
 		
